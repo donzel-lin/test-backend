@@ -1,21 +1,30 @@
 const { Server } = require("socket.io")
-
+const  dayjs = require('dayjs')
  class Io {
+    static socket = null
     constructor(server) {
         this.io = new Server(server, {
-            cors: '*'
+            cors: {
+                origin: '*'
+            }
         })
         this.init()
     }
     init() {
-        console.log('init')
-        this.io.on('connection', this.onConnection)
+        this.io.on('connection', (socket) => this.onConnection(socket))
     }
     onMsg(msg) {
-        console.log(msg, 'msg')
+        this.socket.emit('answer', {
+            ...msg,
+            content: 'answer-bbb',
+            isHost: false,
+            time: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+            type: 'text'
+        })
     }
     onConnection(socket) {
-        socket.on('msg', this.onMsg)
+        this.socket = socket
+        this.socket.on('hello', (msg) => this.onMsg(msg))
     }
 }
 
